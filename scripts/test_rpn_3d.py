@@ -18,15 +18,18 @@ np.set_printoptions(suppress=True)
 # -----------------------------------------
 from lib.imdb_util import *
 
-conf_path = '/home/garrick/Desktop/M3D-RPN-Release/m3d_rpn_depth_aware_test_config.pkl'
-weights_path = '/home/garrick/Desktop/M3D-RPN-Release/m3d_rpn_depth_aware_test'
+split = "val1" # val1/val2/test
+
+weights_path = "released/m3d_rpn_depth_aware_" + split
+conf_path = "released/m3d_rpn_depth_aware_" + split + "_config.pkl"
 
 # load config
 conf = edict(pickle_read(conf_path))
 conf.pretrained = None
+conf.batch_size = 1
 
 data_path = os.path.join(os.getcwd(), 'data')
-results_path = os.path.join('output', 'tmp_results', 'data')
+results_path = os.path.join('output', split, 'data')
 
 # make directory
 mkdir_if_missing(results_path, delete_if_exist=True)
