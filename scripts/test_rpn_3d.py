@@ -32,7 +32,7 @@ data_path = os.path.join(os.getcwd(), 'data')
 results_path = os.path.join('output', split, 'data')
 
 # make directory
-mkdir_if_missing(results_path, delete_if_exist=True)
+mkdir_if_missing(results_path, delete_if_exist=False)
 
 # -----------------------------------------
 # torch defaults
@@ -55,7 +55,9 @@ load_weights(net, weights_path, remove_module=True)
 net.eval()
 
 print(pretty_print('conf', conf))
-
+print("Config file   = {}".format(conf_path))
+print("Weights file  = {}".format(weights_path))
+print("Output folder = {}".format(results_path))
 # -----------------------------------------
 # test kitti
 # -----------------------------------------
