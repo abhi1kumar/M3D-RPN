@@ -1401,7 +1401,7 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
         file.close()
 
         # display stats
-        if (imind + 1) % 1000 == 0:
+        if (imind + 1) % 500 == 0:
             time_str, dt = compute_eta(test_start, imind + 1, len(imlist))
 
             print_str = 'testing {}/{}, dt: {:0.3f}, eta: {}'.format(imind + 1, len(imlist), dt, time_str)
@@ -1409,11 +1409,14 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
             if use_log: logging.info(print_str)
             else: print(print_str)
 
-
     # evaluate
-    script = os.path.join(test_path, dataset_test, 'devkit', 'cpp', 'evaluate_object')
+    gt_folder = os.path.join("data", dataset_test, "validation", "label_2")
+    print("\nRunning for thresholds [0.7, 0.5, 0.5]...")
+    script = os.path.join(test_path, "kitti_split1", 'devkit', 'cpp', 'evaluate_object')
+    print("Command\n {} {} {}".format(script, results_path.replace('/data', ''), gt_folder))
+
     with open(os.devnull, 'w') as devnull:
-        out = subprocess.check_output([script, results_path.replace('/data', '')], stderr=devnull)
+        out = subprocess.check_output([script, results_path.replace('/data', ''), gt_folder], stderr=devnull)
 
     for lbl in rpn_conf.lbls:
 
@@ -1434,7 +1437,7 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
         if os.path.exists(respath_gr):
             easy, mod, hard = parse_kitti_result(respath_gr)
 
-            print_str = 'test_iter {} gr {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
+            print_str = 'test_iter {} bev {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
                                                                                                     easy, mod, hard)
 
             if use_log: logging.info(print_str)
@@ -1449,7 +1452,49 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
             if use_log: logging.info(print_str)
             else: print(print_str)
 
+    print("\nRunning for thresholds [0.5, 0.3, 0.3]...")
+    script = os.path.join(test_path, "kitti_split1", 'devkit', 'cpp', 'evaluate_object_0_5')
+    print("Command\n{} {} {}".format(script, results_path.replace('/data', ''), gt_folder))
 
+    with open(os.devnull, 'w') as devnull:
+        out = subprocess.check_output([script, results_path.replace('/data', ''), gt_folder], stderr=devnull)
+
+    for lbl in rpn_conf.lbls:
+
+        lbl = lbl.lower()
+
+        respath_2d = os.path.join(results_path.replace('/data', ''), 'stats_{}_detection.txt'.format(lbl))
+        respath_gr = os.path.join(results_path.replace('/data', ''), 'stats_{}_detection_ground.txt'.format(lbl))
+        respath_3d = os.path.join(results_path.replace('/data', ''), 'stats_{}_detection_3d.txt'.format(lbl))
+
+        if os.path.exists(respath_2d):
+            easy, mod, hard = parse_kitti_result(respath_2d)
+
+            print_str = 'test_iter {} 2d {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
+                                                                                                    easy, mod, hard)
+            if use_log: logging.info(print_str)
+            else: print(print_str)
+
+        if os.path.exists(respath_gr):
+            easy, mod, hard = parse_kitti_result(respath_gr)
+
+            print_str = 'test_iter {} bev {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
+                                                                                                    easy, mod, hard)
+
+            if use_log: logging.info(print_str)
+            else: print(print_str)
+
+        if os.path.exists(respath_3d):
+            easy, mod, hard = parse_kitti_result(respath_3d)
+
+            print_str = 'test_iter {} 3d {} --> easy: {:0.4f}, mod: {:0.4f}, hard: {:0.4f}'.format(test_iter, lbl,
+                                                                                                    easy, mod, hard)
+
+            if use_log: logging.info(print_str)
+            else: print(print_str)
+
+"""
+# Older one uses R11 evaluation
 def parse_kitti_result(respath):
 
     text_file = open(respath, 'r')
@@ -1477,7 +1522,35 @@ def parse_kitti_result(respath):
     #hard = np.mean(acc[2, 1:41:1])
 
     return easy, mod, hard
+"""
+def parse_kitti_result(respath, use_40= True):
 
+    text_file = open(respath, 'r')
+
+    acc = np.zeros([3, 41], dtype=float)
+
+    lind = 0
+    for line in text_file:
+
+        parsed = re.findall('([\d]+\.?[\d]*)', line)
+
+        for i, num in enumerate(parsed):
+            acc[lind, i] = float(num)
+
+        lind += 1
+
+    text_file.close()
+
+    if use_40:
+        easy = np.mean(acc[0, 1:41:1])
+        mod = np.mean(acc[1, 1:41:1])
+        hard = np.mean(acc[2, 1:41:1])
+    else:
+        easy = np.mean(acc[0, 0:41:4])
+        mod = np.mean(acc[1, 0:41:4])
+        hard = np.mean(acc[2, 0:41:4])
+
+    return easy, mod, hard
 
 def parse_kitti_vo(respath):
 
