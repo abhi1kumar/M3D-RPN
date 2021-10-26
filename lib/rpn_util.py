@@ -1320,8 +1320,9 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
 
     # import read_kitti_cal
     from lib.imdb_util import read_kitti_cal
+    split  = 'validation'
 
-    imlist = list_files(os.path.join(test_path, dataset_test, 'validation', 'image_2', ''), '*.png')
+    imlist = list_files(os.path.join(test_path, dataset_test, split, 'image_2', ''), '*.png')
 
     preprocess = Preprocess([rpn_conf.test_scale], rpn_conf.image_means, rpn_conf.image_stds)
 
@@ -1339,7 +1340,7 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
         base_path, name, ext = file_parts(impath)
 
         # read in calib
-        p2 = read_kitti_cal(os.path.join(test_path, dataset_test, 'validation', 'calib', name + '.txt'))
+        p2 = read_kitti_cal(os.path.join(test_path, dataset_test, split, 'calib', name + '.txt'))
         p2_inv = np.linalg.inv(p2)
 
         # forward test batch
@@ -1384,6 +1385,10 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
 
                 z3d, ry3d, verts_best = hill_climb(p2, p2_inv, box_2d, x3d, y3d, z3d, w3d, h3d, l3d, ry3d, step_r_init=step_r, r_lim=r_lim)
 
+                if "nusc_kitti" in dataset_test:
+                    # Focal length correction
+                    z3d /= 3.84/2.82
+
                 # predict a more accurate projection
                 coord3d = np.linalg.inv(p2).dot(np.array([x3d * z3d, y3d * z3d, 1 * z3d, 1]))
                 alpha = convertRot2Alpha(ry3d, coord3d[2], coord3d[0])
@@ -1393,7 +1398,8 @@ def test_kitti_3d(dataset_test, net, rpn_conf, results_path, test_path, use_log=
                 z3d = coord3d[2]
 
                 y3d += h3d/2
-                
+
+                # if cls == "Car":
                 text_to_write += ('{} -1 -1 {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} '
                            + '{:.6f} {:.6f}\n').format(cls, alpha, x1, y1, x2, y2, h3d, w3d, l3d, x3d, y3d, z3d, ry3d, score)
                            

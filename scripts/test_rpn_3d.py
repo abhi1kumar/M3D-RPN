@@ -28,6 +28,10 @@ conf = edict(pickle_read(conf_path))
 conf.pretrained = None
 conf.batch_size = 1
 
+# conf.dataset_test = "nusc_kitti"
+# split = "nusc_kitti"
+# data_path = "/home/abhinav/project/GUPNet/code/data/"
+
 data_path = os.path.join(os.getcwd(), 'data')
 results_path = os.path.join('output', split, 'data')
 
