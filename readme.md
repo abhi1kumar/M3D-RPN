@@ -2,14 +2,16 @@
 
 Garrick Brazil, Xiaoming Liu
 
+This code uses the **newer AP3D** metric with 40 points at IoU= 0.7 for evaluation. The code also reports the **newer AP3D** evaluation with 40 points at IoU= 0.5.
+
 ## Introduction
 
 
-Monocular 3D region proposal network source code as detailed in [arXiv report](https://arxiv.org/abs/1907.06038), accepted to ICCV 2019 (Oral). Please also visit our [project page](http://cvlab.cse.msu.edu/project-m3d-rpn.html).
+Monocular 3D region proposal network source code as detailed in [arXiv report](https://arxiv.org/abs/1907.06038), accepted to ICCV 2019 (Oral). Please also visit their [project page](http://cvlab.cse.msu.edu/project-m3d-rpn.html).
 
-Our framework is implemented and tested with Ubuntu 16.04, CUDA 8.0, Python 3, NVIDIA 1080 Ti GPU. Unless otherwise stated the below scripts and instructions assume working directory is the project root. 
+Their framework is implemented and tested with Ubuntu 16.04, CUDA 8.0, Python 3, NVIDIA 1080 Ti GPU. Unless otherwise stated the below scripts and instructions assume working directory is the project root. 
 
-If you utilize this framework, please cite our ICCV 2019 paper. 
+If you utilize this framework, please cite their ICCV 2019 paper. 
 
     @inproceedings{brazil2019m3drpn,
         title={M3D-RPN: Monocular 3D Region Proposal Network for Object Detection},
@@ -84,7 +86,7 @@ python scripts/train_rpn_3d.py --config=kitti_3d_multi_main --restore=10000
 
 ## Testing
 
-We provide models for the main experiments on val1 / val2 / test data splits available to download here [M3D-RPN-Release.zip](https://www.cse.msu.edu/computervision/M3D-RPN-Release.zip).
+The authors provide models for the main experiments on val1 / val2 / test data splits available to download here [M3D-RPN-Release.zip](https://www.cse.msu.edu/computervision/M3D-RPN-Release.zip).
 
 Testing requires paths to the configuration file and model weights, exposed variables near the top *scripts/test_rpn_3d.py*. To test a configuration and model, simply update the variables and run the test file as below. 
 
